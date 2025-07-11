@@ -1,5 +1,8 @@
 package com.rewardlytech.myapplication;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
 
 //clover
 import com.clover.sdk.util.CloverAccount;
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private InventoryConnector rConnector;
     private TextView rTextview;
     private Button rMemberBtn;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +58,28 @@ public class MainActivity extends AppCompatActivity {
         rTextview = (TextView) findViewById(R.id.tv_maintext);
         rMemberBtn = (Button) findViewById(R.id.btn_members);
         rMemberBtn.setText("Members");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Add Members")
+                .setPositiveButton("Scan", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Start barcode Scanner.
+                        Toast.makeText(MainActivity.this.getApplicationContext(), "Scan started", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //exit
+
+                    }
+                });
+        AlertDialog membAdd = builder.create();
         rMemberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Members Clicked", Toast.LENGTH_SHORT).show();
+                membAdd.setMessage("Member add");
+                membAdd.show();
             }
         });
         if (rAccount == null) {
@@ -120,4 +144,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }
