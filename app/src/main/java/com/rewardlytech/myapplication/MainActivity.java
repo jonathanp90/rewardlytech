@@ -1,8 +1,8 @@
 package com.rewardlytech.myapplication;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,11 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.DialogFragment;
 
 //clover
 import com.clover.sdk.util.CloverAccount;
@@ -29,6 +30,10 @@ import com.clover.sdk.v3.inventory.InventoryContract;
 import com.clover.sdk.v3.inventory.Item;
 import com.clover.sdk.v1.BindingException;
 
+//Zebra Xing barcode scanner
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -37,7 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView rTextview;
     private Button rMemberBtn;
 
-
+    private final ActivityResultLauncher<ScanOptions> barcodeLauncher =
+            registerForActivityResult(new ScanContract(), result -> {
+                if (result.getContents() != null) {
+                    String memberID = result.getContents();
+                    verifyMemberandIssueDiscount(memberID);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +75,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Start barcode Scanner.
-                        Toast.makeText(MainActivity.this.getApplicationContext(), "Scan started", Toast.LENGTH_SHORT).show();
+                        ScanOptions options = new ScanOptions()
+                                .setPrompt("Scan Member card")
+                                .setBeepEnabled(true);
+
+                        barcodeLauncher.launch(options);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -117,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
             rConnector.disconnect();
             rConnector = null;
         }
+
+
+    }
+
+    private void verifyMemberandIssueDiscount(String memberId) {
+
     }
 
     private class InventoryAsyncTask extends AsyncTask<Void, Void, Item> {
